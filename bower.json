@@ -1,0 +1,29 @@
+{
+  "name": "hawkular-metrics",
+  "version": "0.1.0",
+  "keywords": [
+    "hawtio"
+  ],
+  "main": [
+    "dist/hawkular-metrics.js",
+    "dist/hawkular-metrics.css"
+  ],
+  "ignore": [
+    "dist/hawkular-metrics-test.js",
+    "**/.*",
+    "node_modules",
+    "libs",
+    "plugins"
+  ],
+  "dependencies": {
+    "hawtio-core": "~2.0.0",
+    "hawtio-core-navigation": "~2.0.0",
+    "hawtio-utilities": "~2.0.0",
+    "hawkular-charts": "0.4.11"
+  },
+  "devDependencies": {
+    "bootstrap": "~3.3.1",
+    "patternfly": "~1.1.2",
+    "hawtio-core-dts": "~2.0.0"
+  }
+}

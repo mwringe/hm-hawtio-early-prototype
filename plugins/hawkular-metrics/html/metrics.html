@@ -1,0 +1,71 @@
+<div class="row">
+  <div class="col-md-12" ng-controller="HawkularMetrics.MetricsController">
+    <h1>Container Metrics</h1>
+    <p>Metrics gathered from OpenShift</p>
+    <!--<p>Hello {{target}}</p>-->
+
+    <div>
+      <p ng-show="!connected">Host <input ng-model="host"/><button ng-click="connect(host)">Connect</button></p>
+
+      <p>Tenant Id<select></select></p>
+      <p>Namespace
+        <select ng-model="mynamespace" ng-options="value for value in metrics | tags:'pod_namespace'"></select>
+      </p>
+      <p>Pod
+        <select ng-model="mypod" ng-options="value for value in metrics | tags:'pod_name'"></select>
+      </p>
+
+      <p>Metric<select ng-model="mymetric" ng-options="foo.id for foo in metrics | namespace:mynamespace | tag:'pod_name':mypod"></select></p>
+    </div>
+
+    <div class="chartWrapper" style="height:300px">
+      <hawkular-chart chart-type="hawkularmetric"
+                      metric-id="{{mymetric.id | urlEncode}}"
+                      metric-url="{{baseMetricsURL}}"
+                      metric-tenant-id="{{tenantId}}"
+                      metric-type="gauge"
+                      time-range-in-seconds="7200"
+                      refresh-interval-in-seconds="30"
+                      show-avg-line=true
+                      y-axis-units="Memory Usage ({{mymetric.tags.units}})"
+                      chart-height="250">
+      </hawkular-chart>
+    </div>
+
+    <p>Namespaces: {{metrics | namespaces}}</p>
+    <p>Container Names: {{metrics | tags:'container_name'}}</p>
+    <p>Container Names: {{metrics | tags:'pod_name'}}</p>
+
+    <!--<div>-->
+      <!--<div ng-repeat="metric in metrics">-->
+        <!--<p>ID : {{metric.id}}</p>-->
+        <!--<p>TAGS: {{metric.tags.pod_name}}</p>-->
+        <!--<p></p>-->
+        <!--<p></p>-->
+
+      <!--</div>-->
+    <!--</div>-->
+
+      <div>
+          <p>Metric ID: <em>{{mymetric.id}}</em></p>
+          <ul ng-repeat="(key, value) in mymetric.tags">
+              <li>
+                  <span style="font-weight:bold">{{key}}</span><span>  {{value}}</span>
+              </li>
+
+          </ul>
+
+      </div>
+
+
+
+    <pre>
+      host = {{host}}
+      <!--tenants = {{tenants}}-->
+      mymetric = {{mymetric}}
+      <!--descriptor = {{mymetric.tags.descriptor_name}} - {{mymetric.tags.units}}-->
+      <!--metrics = {{metrics}}-->
+    </pre>
+
+  </div>
+</div>
