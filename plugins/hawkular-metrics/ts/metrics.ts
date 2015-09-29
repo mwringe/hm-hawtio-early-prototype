@@ -17,45 +17,196 @@
 module Metrics {
 
   export var MetricsController = _module.controller("HawkularMetrics.MetricsController", ["$scope", "$http", ($scope, $http) => {
-    $scope.target = "World!";
 
-    $scope.connected = false;
+    // The token used to authentication against the server with
+    $scope.token = "";
 
-    $scope.tenants = {};
+    // The host containing running hawkular metrics
+    $scope.endpoint = "http://172.30.11.68/hawkular/metrics";
 
+    // Store the tenants which are available
+    $scope.tenants = [];
+
+    // The currently selected tenant
+    $scope.tenant = "";
+
+    // The currently seleted pod
+    $scope.pod = {};
+
+    $scope.host= "";
+
+    // Stores the metrics object
     $scope.metrics = {};
 
-    $scope.host = "http://172.30.67.250/hawkular/metrics/metrics";
+    // The currently selected metric
+    $scope.metric = {};
 
-    $scope.baseMetricsURL = "http://172.30.67.250/hawkular/metrics";
+    $scope.timeRange = 30;
 
-    $scope.tenantId = "heapster";
+    $scope.timeOffset = 0;
 
-    $scope.connect = function(url) {
+    $scope.buckets = 60;
 
-      //alert("URL : " + url);
+    // The currently selected contianer
+    $scope.container = {};
+
+    // The data for the currently selected chart
+    $scope.chartData = {};
+
+    $scope.counter_type = "rate";
+
+    $scope.getTenants = function() {
+
+      console.log("About to request tenants using token " + this.token);
+
+      this.host = "";
+      this.container = "";
+      this.pod = {};
+      this.metric = {};
+      this.tenants = [];
+      this.tenant = "";
+
+      var metrics = this;
+
+      var req = {
+        method: 'GET',
+        url: this.endpoint + "/tenants",
+        headers: {
+          'Accept': "application/json",
+          'Hawkular-Tenant': "_system",
+          'Authorization': "Bearer " + this.token
+        }
+      };
+
+      $http(req).success(function(data, status, headers, config) {
+
+        metrics.tenants = new Array();
+
+        console.log("tenants response " + data);
+
+        for (var i = 0; i < data.length; i++) {
+          console.log("Tenant " + data[i].id);
+          metrics.tenants.push(data[i].id);
+        }
+
+      }).error(function(data, status, headers, config) {
+        //alert("ERROR : " + data);
+        console.error('Error getting Metrics: ' + data);
+      });
+
+    };
+
+    $scope.getMetrics = function() {
+
+      console.log("About to request metrics using token " + this.token);
+
+      this.host = "";
+      this.container = "";
+      this.pod = {};
+      this.metric = {};
+
+      var metrics = this;
+
+      var req = {
+        method: 'GET',
+        url: this.endpoint + "/metrics",
+        headers: {
+          'Accept': "application/json",
+          'Hawkular-Tenant': this.tenant,
+          'Authorization': "Bearer " + this.token
+        }
+      };
+
+      $http(req).success(function(data, status, headers, config) {
+
+        console.log("metrics response " + data);
+
+        metrics.metrics = data;
+
+      }).error(function(data, status, headers, config) {
+        //alert("ERROR : " + data);
+        console.error('Error getting Metrics: ' + data);
+      });
+
+    };
+
+    $scope.getChartData = function() {
+      console.log("GETTING CHART DATA FOR " + this.metric.id);
+
+      var metrics = this;
+
+      metrics.chartData = {};
+
+      var type;
+      if (metrics.metric.type === "counter") {
+        type = "counters";
+      } else {
+        type = "gauges";
+      }
+
+      var url = this.endpoint + "/" + type + "/" + encodeURIComponent(metrics.metric.id);
+
+      if (metrics.metric.type === "counter") {
+        url += "/" + this.counter_type;
+      } else {
+        url += "/data";
+      }
+
+      var endTime = new Date().getTime() - (this.timeOffset * 60000);
+      var startTime = endTime - (this.timeRange * 60000);
+
+      url += "?start=" + startTime;
+      url += "&end=" + endTime;
+      url += "&buckets=" + this.buckets;
+
+      console.log ("URL " + url);
 
       var req = {
         method: 'GET',
         url: url,
         headers: {
           'Accept': "application/json",
-          'Hawkular-Tenant': this.tenantId
+          'Hawkular-Tenant': this.tenant,
+          'Authorization': "Bearer " + this.token
         }
       };
 
-      var metrics = this;
-
       $http(req).success(function(data, status, headers, config) {
 
-        //alert("GOT BACK :" + data);
-        metrics.metrics = data;
-        //metrics.tenants = { foo: 'baz'};
+        console.log("data response " + data);
+
+        var length = data.length;
+        for (var i = 0; i < length; i++) {
+          //console.log(data[i]);
+          var point = data[i];
+
+          if (point.timestamp == null) {
+            var midTime = point.start + (point.end - point.start) / 2;
+            point.timestamp = midTime;
+          }
+
+          if (point.value === "NaN") {
+            data[i].value = 0;
+          }
+
+          if (point.avg == null) {
+            point.avg = point.value;
+            point.min = point.value;
+            point.max = point.value;
+            point.median = point.value;
+          }
+
+        }
+
+        metrics.chartData = data;
 
       }).error(function(data, status, headers, config) {
-        alert("ERROR : " + data);
+        //alert("ERROR : " + data);
+        console.error('Error getting Metrics: ' + data);
       });
+
     };
+
   }]);
 
 }

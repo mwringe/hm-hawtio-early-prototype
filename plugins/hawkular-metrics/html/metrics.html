@@ -2,70 +2,114 @@
   <div class="col-md-12" ng-controller="HawkularMetrics.MetricsController">
     <h1>Container Metrics</h1>
     <p>Metrics gathered from OpenShift</p>
-    <!--<p>Hello {{target}}</p>-->
 
     <div>
-      <p ng-show="!connected">Host <input ng-model="host"/><button ng-click="connect(host)">Connect</button></p>
 
-      <p>Tenant Id<select></select></p>
-      <p>Namespace
-        <select ng-model="mynamespace" ng-options="value for value in metrics | tags:'pod_namespace'"></select>
-      </p>
-      <p>Pod
-        <select ng-model="mypod" ng-options="value for value in metrics | tags:'pod_name'"></select>
+      <p>Token
+        <input ng-model="token"/></input>
       </p>
 
-      <p>Metric<select ng-model="mymetric" ng-options="foo.id for foo in metrics | namespace:mynamespace | tag:'pod_name':mypod"></select></p>
-    </div>
+      <p>Endpoint
+        <input ng-model="endpoint"/></input>
+        <button ng-click="getTenants()">Connect</button>
+      </p>
 
-    <div class="chartWrapper" style="height:300px">
-      <hawkular-chart chart-type="hawkularmetric"
-                      metric-id="{{mymetric.id | urlEncode}}"
-                      metric-url="{{baseMetricsURL}}"
-                      metric-tenant-id="{{tenantId}}"
-                      metric-type="gauge"
-                      time-range-in-seconds="7200"
-                      refresh-interval-in-seconds="30"
-                      show-avg-line=true
-                      y-axis-units="Memory Usage ({{mymetric.tags.units}})"
-                      chart-height="250">
-      </hawkular-chart>
-    </div>
+      <p ng-show="tenants.length > 0">Tenants
+        <select ng-model="tenant" ng-options="value for value in tenants" ng-change="getMetrics()"></select>
+      </p>
 
-    <p>Namespaces: {{metrics | namespaces}}</p>
-    <p>Container Names: {{metrics | tags:'container_name'}}</p>
-    <p>Container Names: {{metrics | tags:'pod_name'}}</p>
+      <p ng-show="metrics.length > 0 && (metrics|tags:'pod_name').length > 0">Pods
+        <select ng-model="pod" ng-options="value for value in metrics | tags:'pod_name'"></select>
+      </p>
 
-    <!--<div>-->
-      <!--<div ng-repeat="metric in metrics">-->
-        <!--<p>ID : {{metric.id}}</p>-->
-        <!--<p>TAGS: {{metric.tags.pod_name}}</p>-->
-        <!--<p></p>-->
-        <!--<p></p>-->
+      <p ng-show="metrics.length > 0 && (metrics|tags:'pod_name').length == 0">Host
+        <select ng-model="host" ng-options="value for value in metrics | tags:'hostname'"></select>
+      </p>
 
-      <!--</div>-->
-    <!--</div>-->
+      <p ng-show="pod.length > 0">Container
+        <select ng-model="container" ng-options="value for value in metrics | tag:tenant | tag:'pod_name':pod | tags:'container_name'"></select>
+      </p>
 
-      <div>
-          <p>Metric ID: <em>{{mymetric.id}}</em></p>
-          <ul ng-repeat="(key, value) in mymetric.tags">
-              <li>
-                  <span style="font-weight:bold">{{key}}</span><span>  {{value}}</span>
-              </li>
+      <p ng-show="container.length > 0">Metric
+        <select ng-model="metric"
+                ng-change="getChartData()"
+                ng-options="foo.tags.descriptor_name for foo in metrics | tag:tenant | tag:'pod_name':pod | tag:container"></select>
+      </p>
 
-          </ul>
+      <p ng-show="host.length > 0">Metric
+        <select ng-model="metric"
+                ng-change="getChartData()"
+                ng-options="foo.id for foo in metrics | tag:tenant | tag:'hostname':host"></select>
+      </p>
 
+      <p ng-show="metric.type == 'counter'">Counter Type:
+        <select ng-model="counter_type"
+                ng-change="getChartData()"
+                ng-options="type for type in ['data', 'rate']"
+                >
+        </select>
+      </p>
+
+
+      <p ng-show="metric.id != null"> Time Offset: {{timeOffset}} minutes
+        <input
+            ng-model="timeOffset"
+            ng-change="getChartData()"
+            type="range"
+            name="Time Range (minutes)"
+            min="0"
+            max="500">
+        </input>
+      </p>
+
+
+      <p ng-show="metric.id != null"> Time Range: {{timeRange}} minutes
+        <input
+            ng-model="timeRange"
+            ng-change="getChartData()"
+            type="range"
+            name="Time Range (minutes)"
+            min="1"
+            max="240">
+        </input>
+      </p>
+
+      <p ng-show="metric.id != null"> Buckets: {{buckets}}
+        <input
+            ng-model="buckets"
+            ng-change="getChartData()"
+            type="range"
+            name="Time Range (minutes)"
+            min="1"
+            max="500">
+        </input>
+      </p>
+
+      <div ng-if="metric.id != null">
+        <div class="chartWrapper" style="height:300px">
+          <hawkular-chart chart-type="hawkularmetric"
+                          data="{{chartData}}"
+                          show-avg-line=true
+                          y-axis-units="Memory Usage ({{mymetric.tags.units}})"
+                          chart-height="250">
+          </hawkular-chart>
+        </div>
       </div>
 
+    </div>
 
 
     <pre>
-      host = {{host}}
-      <!--tenants = {{tenants}}-->
-      mymetric = {{mymetric}}
-      <!--descriptor = {{mymetric.tags.descriptor_name}} - {{mymetric.tags.units}}-->
-      <!--metrics = {{metrics}}-->
+      Endpoint = {{endpoint}}
+      Token = {{token}}
+      Tenants = {{tenants}}
+      Pod = {{pod}}
+      Container = {{container}}
+      Metric:
+      {{metric | json}}
+    <!--mymetric = {{mymetric}}-->
+    <!--descriptor = {{mymetric.tags.descriptor_name}} - {{mymetric.tags.units}}-->
+    <!--metrics = {{metrics}}-->
     </pre>
-
   </div>
 </div>

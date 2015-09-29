@@ -43,43 +43,6 @@ module Metrics {
       };
   });
 
-  _module.filter('namespaces', function() {
-    return function(input) {
-      var namespaces = new Array();
-      if (input != null) {
-      for (var i = 0; i < input.length; i++) {
-        //console.log("i : " + i + input[i].id);
-        if (input[i] != null && input[i].tags != null) {
-          var namespace = input[i].tags["pod_namespace"];
-          if (namespaces.indexOf(namespace) < 0) {
-            namespaces.push(namespace);
-          }
-        }
-      }
-
-      }
-      return namespaces;
-    };
-  });
-
-  _module.filter('namespace', function() {
-    return function(input, namespaceName) {
-      var metrics = new Array();
-      if (input != null) {
-        for (var i = 0; i < input.length; i++) {
-          if (input[i] != null && input[i].tags != null) {
-            var namespace = input[i].tags["pod_namespace"];
-            if (namespace === namespaceName) {
-              metrics.push(input[i]);
-            }
-          }
-        }
-
-      }
-      return metrics;
-    };
-  });
-
   _module.filter('tags', function() {
     return function(input, tagName) {
       var tags = new Array();
@@ -88,7 +51,7 @@ module Metrics {
           //console.log("i : " + i + input[i].id);
           if (input[i] != null && input[i].tags != null) {
             var namespace = input[i].tags[tagName];
-            if (tags.indexOf(namespace) < 0) {
+            if (namespace != null && tags.indexOf(namespace) < 0) {
               tags.push(namespace);
             }
           }
