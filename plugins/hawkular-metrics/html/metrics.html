@@ -18,6 +18,10 @@
         <select ng-model="tenant" ng-options="value for value in tenants" ng-change="getMetrics()"></select>
       </p>
 
+      <!--<p ng-show="metrics.length > 0">Container-->
+      <!--<select ng-model="metric" ng-options="value.id for value in metrics | tag:tenant" ng-change="getChartData()"></select>-->
+      <!--</p>-->
+
       <p ng-show="metrics.length > 0 && (metrics|tags:'pod_name').length > 0">Pods
         <select ng-model="pod" ng-options="value for value in metrics | tags:'pod_name'"></select>
       </p>
@@ -100,6 +104,7 @@
 
 
     <pre>
+      URL = {{url}}
       Endpoint = {{endpoint}}
       Token = {{token}}
       Tenants = {{tenants}}

@@ -24,5 +24,44 @@
     "vinyl-map": "^1.0.1",
     "which": "^1.0.8",
     "wiredep": "^2.2.2"
-  }
+  },
+  "description": "Early protoype for gathering container metrics from hawkular-metrics",
+  "main": "gulpfile.js",
+  "dependencies": {
+    "URIjs": "^1.16.0",
+    "bower": "^1.4.1",
+    "event-stream": "^3.3.1",
+    "gulp": "^3.9.0",
+    "gulp-angular-templatecache": "^1.7.0",
+    "gulp-clean": "^0.3.1",
+    "gulp-concat": "^2.6.0",
+    "gulp-header": "^1.2.2",
+    "gulp-less": "^3.0.1",
+    "gulp-notify": "^2.2.0",
+    "gulp-load-plugins": "^0.8.1",
+    "gulp-size": "^1.2.3",
+    "gulp-sourcemaps": "^1.5.2",
+    "gulp-tslint": "^1.5.0",
+    "gulp-typescript": "^2.8.0",
+    "gulp-watch": "^3.0.0",
+    "hawtio-node-backend": "^2.0.10",
+    "through2": "^0.6.5",
+    "underscore.string": "^2.4.0",
+    "vinyl-map": "^1.0.1",
+    "which": "^1.1.1",
+    "wiredep": "^2.2.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mwringe/hm-hawtio-early-prototype.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mwringe/hm-hawtio-early-prototype/issues"
+  },
+  "homepage": "https://github.com/mwringe/hm-hawtio-early-prototype#readme"
 }

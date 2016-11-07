@@ -22,7 +22,7 @@ module Metrics {
     $scope.token = "";
 
     // The host containing running hawkular metrics
-    $scope.endpoint = "http://172.30.11.68/hawkular/metrics";
+    $scope.endpoint = "https://hawkular-metrics.example.com/hawkular/metrics";
 
     // Store the tenants which are available
     $scope.tenants = [];
@@ -173,27 +173,17 @@ module Metrics {
 
       $http(req).success(function(data, status, headers, config) {
 
-        console.log("data response " + data);
+        //console.log("data response " + data);
 
         var length = data.length;
         for (var i = 0; i < length; i++) {
-          //console.log(data[i]);
+          console.log(data[i]);
           var point = data[i];
 
+          //TODO: remove once https://issues.jboss.org/browse/HAWKULAR-643 is done and in a released version.
           if (point.timestamp == null) {
             var midTime = point.start + (point.end - point.start) / 2;
             point.timestamp = midTime;
-          }
-
-          if (point.value === "NaN") {
-            data[i].value = 0;
-          }
-
-          if (point.avg == null) {
-            point.avg = point.value;
-            point.min = point.value;
-            point.max = point.value;
-            point.median = point.value;
           }
 
         }
